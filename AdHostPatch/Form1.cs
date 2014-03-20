@@ -14,14 +14,16 @@ namespace AdHostPatch
 {
     public partial class Form1 : Form
     {
-        static String[] sites =
-            {
-                "http://hosts-file.net/ad_servers.asp",
-                "http://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext",
-                "http://winhelp2002.mvps.org/hosts.txt",
-                "http://someonewhocares.org/hosts/hosts"
-            };
-        static string hostslocal = Path.Combine(Environment.SystemDirectory, @"drivers\etc\hosts");
+        private static readonly String[] Sites =
+        {
+            "http://hosts-file.net/ad_servers.asp",
+            "http://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext",
+            "http://winhelp2002.mvps.org/hosts.txt",
+            "http://someonewhocares.org/hosts/hosts"
+        };
+
+        private static readonly string Hostslocal = Path.Combine(Environment.SystemDirectory, @"drivers\etc\hosts");
+
         public Form1()
         {
             InitializeComponent();
@@ -106,32 +108,33 @@ namespace AdHostPatch
             }
            
         }
-        public static void RemDuplicate()
-        {
-            var sr = new StreamReader(File.OpenRead("hosts_temp"));
-            var sw = new StreamWriter(File.OpenWrite("hosts"));
-            
-            var lines = new HashSet<int>();
-            while (!sr.EndOfStream)
-            {
-                string line = sr.ReadLine();
-                if (!string.IsNullOrWhiteSpace(line) && line[0] != '#')
-                {
-                    
-                    var arr = line.Split(' ', '\t');
-                    if (arr.Length < 2)
-                        continue;
-                    int hc = arr[1].GetHashCode();
-                    if (lines.Contains(hc))
-                        continue;
 
-                    lines.Add(hc);
-                    sw.WriteLine(line);
+        private static void RemDuplicate()
+        {
+            using (var sr = File.OpenText("hosts_temp"))
+            {
+                using (var sw = new StreamWriter(File.OpenWrite("hosts")))
+                {
+                    var domains = new HashSet<string>();
+                    while (!sr.EndOfStream)
+                    {
+                        var line = sr.ReadLine();
+                        if (string.IsNullOrWhiteSpace(line) || line[0] == '#')
+                            continue;
+                        var arr = line.Split(' ', '\t');
+                        if (arr.Length < 2)
+                            continue;
+                        if (!domains.Add(arr[1]))
+                            continue;
+                        var i = line.IndexOf('#');
+                        if (i != -1)
+                            line = line.Substring(0, i);
+                        line = line.Trim();
+                        sw.WriteLine(line);
+                    }
+                    sw.Flush();
                 }
             }
-            sw.Flush();
-            sw.Close();
-            sr.Close();
         }
 
         public static Task<String> download(string URL)
