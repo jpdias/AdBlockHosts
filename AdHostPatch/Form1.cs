@@ -29,7 +29,7 @@ namespace AdHostPatch
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
             // Set up tooltip
             var toolTip = new ToolTip
@@ -44,62 +44,54 @@ namespace AdHostPatch
             };
             toolTip.SetToolTip(checkBox1, "If checked the system's hosts file will not be changed.");
 
+            // Count available updates
             button1.Enabled = false;
-            Task.Factory.StartNew(() =>
+            var filedit = GetFileEditTime(Hostslocal);
+            var tasksQuery = Sites.Select(GetPageEdittime);
+            var tasks = tasksQuery.ToList();
+            var numberOfUpdates = 0;
+            label2.Text = string.Format("No available updates (0/{0})", numberOfUpdates);
+            while (tasks.Count > 0)
             {
-                var filedit = getFileEditTime(hostslocal);
-                Task<DateTime?>[] tasks = sites.Select(getPageEdittime).ToArray();
+                var firstFinishedTask = await Task.WhenAny(tasks);
+                tasks.Remove(firstFinishedTask);
 
-                this.BeginInvoke(new MethodInvoker(delegate
+                var siteEditDate = await firstFinishedTask;
+                if (siteEditDate.HasValue && filedit < siteEditDate)
                 {
-                    if (Task.WaitAll(tasks, 20000))
-                    {
-                        var numberofupdates = tasks.Count(site =>
-                        {
-                            if (site.Result.HasValue)
-                                return filedit < site.Result.Value;
-                            else
-                            {
-                                label2.Text = "No internet connection :(";
-                                return false;
-                            }
-                        });
-
-                        if (tasks.Any(t => t.Result.HasValue))
-                        {
-                            label2.Text = string.Format("Available updates {0}/{1}", numberofupdates, sites.Length);
-                            button1.Enabled = true;
-                        }
-                    }
-                    else
-                    {
-                        label2.Text = "No internet connection :(";
-                    }
-                }));
-            });
+                    numberOfUpdates++;
+                    label2.Text = string.Format("Available updates ({0}/{1})", numberOfUpdates, Sites.Length);
+                    button1.Enabled = true;
+                }
+                else
+                {
+                    label2.Text = "No internet connection :(";
+                }
+            }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
             var oldValue = button1.Text;
             button1.Enabled = false;
             button1.Text = "Running";
 
-            progressBar1.Style = ProgressBarStyle.Continuous;
-            progressBar1.Maximum = 100;
             progressBar1.Value = 1;
 
-            var sitesTask = sites.Select(download).ToList();
+            var downloadTasksQuery = Sites.Select(Download);
+            var downloadTasks = downloadTasksQuery.ToList();
 
-            using (StreamWriter w = File.CreateText("hosts_temp"))
+            using (var w = File.CreateText("hosts_temp"))
             {
-                foreach (var site in sitesTask)
+                while (downloadTasks.Count > 0)
                 {
-                    Log(site.Result, w);
-                    progressBar1.Value += 80/sites.Length;
+                    var firstFinishedTask = await Task.WhenAny(downloadTasks);
+                    downloadTasks.Remove(firstFinishedTask);
+                    var str = await firstFinishedTask;
+                    if (str != null)
+                        Log(str, w);
+                    progressBar1.Value += 80/Sites.Length;
                 }
-                //Log(adaway, w);
-              
             }
 
             progressBar1.Value = 85;
@@ -113,13 +105,11 @@ namespace AdHostPatch
             button1.Text = oldValue;
             button1.Enabled = true;
         }
-        public static void Log(string logMessage, TextWriter w)
+
+        private static void Log(string logMessage, TextWriter w)
         {
             if (logMessage != null)
-            {
-                 w.WriteLine(logMessage);
-            }
-           
+                w.WriteLine(logMessage);
         }
 
         private static void RemDuplicate()
@@ -150,51 +140,45 @@ namespace AdHostPatch
             }
         }
 
-        public static Task<String> download(string URL)
+        private static async Task<String> Download(string url)
         {
-            var webClient = new WebClient();
-            return  Task<String>.Factory.StartNew(() =>
+            try
             {
-                try
-                {
-                   return webClient.DownloadString(URL);
-                }
-                catch (Exception ex)
-                {
-                    Console.Write(ex);
-                    return null;
-                }
-            });
+                var webClient = new WebClient();
+                return await webClient.DownloadStringTaskAsync(new Uri(url));
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+                return null;
+            }
         }
 
-        public static DateTime getFileEditTime(string filePath)
+        private static DateTime GetFileEditTime(string filePath)
         {
             return new FileInfo(filePath).LastWriteTime;
         }
 
-        public static Task<DateTime?> getPageEdittime(string url)
+        private static async Task<DateTime?> GetPageEdittime(string url)
         {
-            return Task<DateTime?>.Factory.StartNew(() =>
+            try
             {
-                try
-                {
-                    var req = (HttpWebRequest) WebRequest.Create(url);
-                    var res = (HttpWebResponse) req.GetResponse();
-
-                    return res.LastModified;
-                }
-                catch (WebException ex)
-                {
-                    if (ex.Status == WebExceptionStatus.NameResolutionFailure)
-                        return null;
-                    return DateTime.Now;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                    return DateTime.Now;
-                }
-            });
+                var req = (HttpWebRequest) WebRequest.Create(url);
+                var res = (HttpWebResponse) await req.GetResponseAsync();
+                return res.LastModified;
+            }
+            catch (WebException ex)
+            {
+                Console.WriteLine(ex);
+                if (ex.Status == WebExceptionStatus.NameResolutionFailure)
+                    return null;
+                return DateTime.Now;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return DateTime.Now;
+            }
         }
 
 
