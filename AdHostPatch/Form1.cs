@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -95,13 +92,54 @@ namespace AdHostPatch
             }
 
             progressBar1.Value = 85;
-            RemDuplicate();
+            try
+            {
+                RemDuplicate();
+            }
+            catch (Exception ex)
+            {
+                ShowErrorBox(ex.ToString());
+            }
             progressBar1.Value = 95;
-           
-            File.Copy("hosts",  hostslocal, true);
+
+            var localHostsChecked = checkBox1.Checked;
+            if (!localHostsChecked)
+            {
+                try
+                {
+                    File.Copy("hosts", Hostslocal, true);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    ShowErrorBox("Could not change system's hosts file.\nRun this program in Administrator mode.");
+                }
+                catch (Exception ex)
+                {
+                    ShowErrorBox(ex.ToString());
+                }
+            }
             progressBar1.Value = 100;
-            File.Delete("hosts");
-            File.Delete("hosts_temp");
+            if (!localHostsChecked)
+            {
+                try
+                {
+                    File.Delete("hosts");
+                }
+                catch (Exception ex)
+                {
+                    ShowErrorBox(ex.ToString());
+                }
+            }
+
+            try
+            {
+                File.Delete("hosts_temp");
+            }
+            catch (Exception ex)
+            {
+                ShowErrorBox(ex.ToString());
+            }
+
             button1.Text = oldValue;
             button1.Enabled = true;
         }
@@ -181,6 +219,9 @@ namespace AdHostPatch
             }
         }
 
-
+        private static void ShowErrorBox(string text)
+        {
+            MessageBox.Show(text, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 }
