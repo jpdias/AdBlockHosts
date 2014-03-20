@@ -31,7 +31,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.button1 = new System.Windows.Forms.Button();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
-            this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
@@ -52,15 +51,6 @@
             this.progressBar1.Size = new System.Drawing.Size(295, 23);
             this.progressBar1.TabIndex = 1;
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(37, 9);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(235, 13);
-            this.label1.TabIndex = 3;
-            this.label1.Text = "Please run this program always as Administrator. ";
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -77,7 +67,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(319, 166);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.button1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
