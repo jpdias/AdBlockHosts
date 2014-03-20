@@ -31,6 +31,19 @@ namespace AdHostPatch
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            // Set up tooltip
+            var toolTip = new ToolTip
+            {
+                AutomaticDelay = 500,
+                AutoPopDelay = 5000,
+                InitialDelay = 500,
+                ReshowDelay = 100,
+                ShowAlways = true,
+                ToolTipTitle = "Create local hosts file",
+                ToolTipIcon = ToolTipIcon.Info
+            };
+            toolTip.SetToolTip(checkBox1, "If checked the system's hosts file will not be changed.");
+
             button1.Enabled = false;
             Task.Factory.StartNew(() =>
             {
