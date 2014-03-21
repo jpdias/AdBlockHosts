@@ -16,7 +16,8 @@ namespace AdHostPatch
             "http://hosts-file.net/ad_servers.asp",
             "http://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext",
             "http://winhelp2002.mvps.org/hosts.txt",
-            "http://someonewhocares.org/hosts/hosts"
+            "http://someonewhocares.org/hosts/hosts",
+            "http://hostsfile.mine.nu/Hosts"
         };
 
         private static readonly string Hostslocal = Path.Combine(Environment.SystemDirectory, @"drivers\etc\hosts");
