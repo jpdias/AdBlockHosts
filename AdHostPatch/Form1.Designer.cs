@@ -1,4 +1,6 @@
-﻿namespace AdHostPatch
+﻿using System.Windows.Forms;
+
+namespace AdHostPatch
 {
     partial class Form1
     {
@@ -33,6 +35,9 @@
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.label2 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.siteListBox = new System.Windows.Forms.ListBox();
+            this.addSiteButton = new System.Windows.Forms.Button();
+            this.siteTextBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // button1
@@ -73,11 +78,43 @@
             this.checkBox1.Text = "Local only";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
+            // siteListBox
+            // 
+            this.siteListBox.FormattingEnabled = true;
+            this.siteListBox.Location = new System.Drawing.Point(12, 138);
+            this.siteListBox.Name = "siteListBox";
+            this.siteListBox.Size = new System.Drawing.Size(295, 82);
+            this.siteListBox.TabIndex = 6;
+            // 
+            // addSiteButton
+            // 
+            this.addSiteButton.Location = new System.Drawing.Point(232, 226);
+            this.addSiteButton.Name = "addSiteButton";
+            this.addSiteButton.Size = new System.Drawing.Size(75, 20);
+            this.addSiteButton.TabIndex = 7;
+            this.addSiteButton.Text = "Add";
+            this.addSiteButton.UseVisualStyleBackColor = true;
+            this.addSiteButton.Click += new System.EventHandler(this.addSiteButton_Click);
+            // 
+            // siteTextBox
+            // 
+            this.siteTextBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+            this.siteTextBox.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.AllUrl;
+            this.siteTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.siteTextBox.Location = new System.Drawing.Point(12, 226);
+            this.siteTextBox.Name = "siteTextBox";
+            this.siteTextBox.Size = new System.Drawing.Size(214, 20);
+            this.siteTextBox.TabIndex = 8;
+            this.siteTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.siteTextBox_KeyDown);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(319, 133);
+            this.ClientSize = new System.Drawing.Size(319, 258);
+            this.Controls.Add(this.siteTextBox);
+            this.Controls.Add(this.addSiteButton);
+            this.Controls.Add(this.siteListBox);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.progressBar1);
@@ -98,6 +135,9 @@
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.ListBox siteListBox;
+        private System.Windows.Forms.Button addSiteButton;
+        private System.Windows.Forms.TextBox siteTextBox;
     }
 }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -11,7 +10,7 @@ namespace AdHostPatch
 {
     public partial class Form1 : Form
     {
-        private static readonly String[] Sites =
+        private static readonly List<string> Sites = new List<string>
         {
             "http://hosts-file.net/ad_servers.asp",
             "http://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext",
@@ -29,7 +28,7 @@ namespace AdHostPatch
 
         private async void Form1_Load(object sender, EventArgs e)
         {
-            // Set up tooltip
+            // Setup tooltip
             var toolTip = new ToolTip
             {
                 AutomaticDelay = 500,
@@ -41,6 +40,9 @@ namespace AdHostPatch
                 ToolTipIcon = ToolTipIcon.Info
             };
             toolTip.SetToolTip(checkBox1, "If checked the system's hosts file will not be changed.");
+
+            // Setup listbox
+            siteListBox.Items.AddRange(Sites.ToArray());
 
             // Count available updates
             button1.Enabled = false;
@@ -58,10 +60,10 @@ namespace AdHostPatch
                 if (siteEditDate.HasValue && filedit < siteEditDate)
                 {
                     numberOfUpdates++;
-                    label2.Text = string.Format("Available updates ({0}/{1})", numberOfUpdates, Sites.Length);
+                    label2.Text = string.Format("Available updates ({0}/{1})", numberOfUpdates, Sites.Count);
                     button1.Enabled = true;
                 }
-                else
+                else if (!siteEditDate.HasValue)
                 {
                     label2.Text = "No internet connection :(";
                 }
@@ -88,7 +90,7 @@ namespace AdHostPatch
                     var str = await firstFinishedTask;
                     if (str != null)
                         Log(str, w);
-                    progressBar1.Value += 80/Sites.Length;
+                    progressBar1.Value += 80/Sites.Count;
                 }
             }
 
@@ -223,6 +225,34 @@ namespace AdHostPatch
         private static void ShowErrorBox(string text)
         {
             MessageBox.Show(text, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void addSiteButton_Click(object sender, EventArgs e)
+        {
+            var uriStr = siteTextBox.Text;
+            if (string.IsNullOrWhiteSpace(uriStr))
+                return;
+
+            Uri _;
+            if (!Uri.TryCreate(uriStr, UriKind.Absolute, out _))
+            {
+                ShowErrorBox(string.Format("{0} is not a valid URL.", uriStr));
+                return;
+            }
+
+            siteTextBox.Text = string.Empty;
+            Sites.Add(uriStr);
+            siteListBox.Items.Add(uriStr);
+
+            // scroll to bottom of the site list box
+            var visibleItems = siteListBox.ClientSize.Height / siteListBox.ItemHeight;
+            siteListBox.TopIndex = Math.Max(siteListBox.Items.Count - visibleItems + 1, 0);
+        }
+
+        private void siteTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                addSiteButton.PerformClick();
         }
     }
 }
