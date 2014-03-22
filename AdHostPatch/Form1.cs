@@ -189,7 +189,8 @@ namespace AdHostPatch
             {
                 var webClient = new WebClient();
 
-                webClient.DownloadProgressChanged += (sender, args) => progress.Report(args.ProgressPercentage);
+                if (progress != null)
+                    webClient.DownloadProgressChanged += (sender, args) => progress.Report(args.ProgressPercentage);
 
                 return await webClient.DownloadStringTaskAsync(url);
             }
