@@ -50,7 +50,7 @@ namespace AdHostPatch
             var tasksQuery = Sites.Select(GetPageEdittime);
             var tasks = tasksQuery.ToList();
             var numberOfUpdates = 0;
-            label2.Text = string.Format("No available updates (0/{0})", numberOfUpdates);
+            label2.Text = string.Format("No available updates (0/{0})", Sites.Count);
             while (tasks.Count > 0)
             {
                 var firstFinishedTask = await Task.WhenAny(tasks);
@@ -78,7 +78,7 @@ namespace AdHostPatch
 
             progressBar1.Value = 1;
 
-            var downloadTasksQuery = Sites.Select(Download);
+            var downloadTasksQuery = Sites.Select(s => Download(s, null));
             var downloadTasks = downloadTasksQuery.ToList();
 
             using (var w = File.CreateText("hosts_temp"))
@@ -93,6 +93,8 @@ namespace AdHostPatch
                     progressBar1.Value += 80/Sites.Count;
                 }
             }
+
+            toolStripStatusLabel.Text = "Done downloading hosts file.";
 
             progressBar1.Value = 85;
             try
@@ -181,12 +183,15 @@ namespace AdHostPatch
             }
         }
 
-        private static async Task<String> Download(string url)
+        private static async Task<String> Download(string url, IProgress<long> progress)
         {
             try
             {
                 var webClient = new WebClient();
-                return await webClient.DownloadStringTaskAsync(new Uri(url));
+
+                webClient.DownloadProgressChanged += (sender, args) => progress.Report(args.ProgressPercentage);
+
+                return await webClient.DownloadStringTaskAsync(url);
             }
             catch (Exception ex)
             {

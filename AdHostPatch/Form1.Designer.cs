@@ -38,6 +38,9 @@ namespace AdHostPatch
             this.siteListBox = new System.Windows.Forms.ListBox();
             this.addSiteButton = new System.Windows.Forms.Button();
             this.siteTextBox = new System.Windows.Forms.TextBox();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
@@ -107,11 +110,28 @@ namespace AdHostPatch
             this.siteTextBox.TabIndex = 8;
             this.siteTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.siteTextBox_KeyDown);
             // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 259);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(319, 22);
+            this.statusStrip1.SizingGrip = false;
+            this.statusStrip1.TabIndex = 9;
+            this.statusStrip1.Text = "statusStrip";
+            // 
+            // toolStripStatusLabel
+            // 
+            this.toolStripStatusLabel.Name = "toolStripStatusLabel";
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(0, 17);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(319, 258);
+            this.ClientSize = new System.Drawing.Size(319, 281);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.siteTextBox);
             this.Controls.Add(this.addSiteButton);
             this.Controls.Add(this.siteListBox);
@@ -124,6 +144,8 @@ namespace AdHostPatch
             this.Name = "Form1";
             this.Text = "AdBlock Hosts File Patcher";
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -138,6 +160,8 @@ namespace AdHostPatch
         private System.Windows.Forms.ListBox siteListBox;
         private System.Windows.Forms.Button addSiteButton;
         private System.Windows.Forms.TextBox siteTextBox;
+        private StatusStrip statusStrip1;
+        private ToolStripStatusLabel toolStripStatusLabel;
     }
 }
 
